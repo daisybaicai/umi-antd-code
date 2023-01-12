@@ -125,6 +125,7 @@ function SelectTable({ api = {} }) {
     const msgObj = {
       cmd: 'writeFile',
       data: {
+        options,
         text: JSON.stringify(payload)
       }
     }
