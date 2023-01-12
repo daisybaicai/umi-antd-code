@@ -141,6 +141,7 @@ function SelectTable({ api = {} }) {
       }
       apiInfos.response = res;
       const payload = {
+        actionType: type,
         ...rest,
         api: apiInfos,
       };
