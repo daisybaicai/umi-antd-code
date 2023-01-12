@@ -121,6 +121,16 @@ function SelectTable({ api = {} }) {
     },
   };
 
+  const vsSaveFile = (payload) => {
+    const msgObj = {
+      cmd: 'writeFile',
+      data: {
+        text: JSON.stringify(payload)
+      }
+    }
+    window.parent.postMessage(msgObj, '*')
+  }
+
   const handleOk = () => {
     form.validateFields().then(async values => {
       // async () => {
@@ -145,6 +155,8 @@ function SelectTable({ api = {} }) {
       //   setVisible(false);
       // }
       // }
+      vsSaveFile(payload);
+      setVisible(false)
     });
   };
 
