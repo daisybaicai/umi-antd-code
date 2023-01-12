@@ -79,7 +79,7 @@ function SelectTable({ api = {} }) {
   };
 
   const columns = [
-    { title: 'tags', dataIhndex: 'tags' },
+    { title: 'tags', dataIndex: 'tags' },
     { title: 'id', dataIndex: 'id' },
     { title: '类型', dataIndex: 'method', key: 'method' },
     { title: '描述', dataIndex: 'description', key: 'description' },
@@ -149,15 +149,15 @@ function SelectTable({ api = {} }) {
   };
 
   const setKeys = (key) => {
-    if(key === 'swagger-data') {
+    if (key === 'swagger-data') {
       const res = getLocalStorage('swagger-data');
-      if(res) {
+      if (res) {
         setInitialObjects(JSON.parse(res).paths);
       }
     }
-    if(key === 'options-key') {
+    if (key === 'options-key') {
       const res2 = getLocalStorage('options-key');
-      if(res2) {
+      if (res2) {
         setOptions(JSON.parse(res2));
       }
     }
@@ -192,6 +192,8 @@ function SelectTable({ api = {} }) {
       console.log('er', err);
     }
   };
+
+  console.log('getTransformArr(initialObjects)', getTransformArr(initialObjects))
 
 
   return (
