@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Table, Button, Form, Modal, Input, Space, Select, Switch } from 'antd';
+import { Table, Button, Form, Modal, Input, Space, Select, Switch, message } from 'antd';
 import { getParams, getResponse, getTransformArr } from '../utils/data';
 import { useEffect, useState } from 'react';
 import { getLocalStorage, setLocalStorage } from '../utils/utils';
@@ -8,7 +8,7 @@ import {
 } from '../common/enum';
 
 const DictCustomSelect = React.forwardRef(
-  ({ data = {}, value = undefined, onChange = () => {} }, ref) => {
+  ({ data = {}, value = undefined, onChange = () => { } }, ref) => {
     return (
       <Select
         placeholder="请选择"
@@ -79,7 +79,7 @@ function SelectTable({ api = {} }) {
   };
 
   const columns = [
-    { title: 'tags', dataIndex: 'tags' },
+    { title: 'tags', dataIhndex: 'tags' },
     { title: 'id', dataIndex: 'id' },
     { title: '类型', dataIndex: 'method', key: 'method' },
     { title: '描述', dataIndex: 'description', key: 'description' },
@@ -134,18 +134,65 @@ function SelectTable({ api = {} }) {
         ...rest,
         api: apiInfos,
       };
-      const { data } = await api.callRemote({
-        type: `org.plugin.template.${type}`,
-        payload: {
-          text: JSON.stringify(payload),
-        },
-      });
-      if (data) {
-        setVisible(false);
-      }
+      // 如何通讯给vscode 插件，然后就行了
+      // const { data } = await api.callRemote({
+      //   type: `org.plugin.template.${type}`,
+      //   payload: {
+      //     text: JSON.stringify(payload),
+      //   },
+      // });
+      // if (data) {
+      //   setVisible(false);
+      // }
       // }
     });
   };
+
+  const setKeys = (key) => {
+    if(key === 'swagger-data') {
+      const res = getLocalStorage('swagger-data');
+      if(res) {
+        setInitialObjects(JSON.parse(res).paths);
+      }
+    }
+    if(key === 'options-key') {
+      const res2 = getLocalStorage('options-key');
+      if(res2) {
+        setOptions(JSON.parse(res2));
+      }
+    }
+  }
+
+  useEffect(() => {
+    setKeys('swagger-data');
+    setKeys('options-key');
+  }, [])
+
+
+  const handleChange = (id, key = 'swagger-data') => {
+    var selectedFile = document.getElementById(id).files[0]; //获取读取的File对象
+
+    try {
+      var reader = new FileReader(); //这里是核心！！！读取操作就是由它完成的。
+      reader.readAsText(selectedFile); //读取文件的内容
+
+      reader.onload = function () {
+        const text = this.result;
+        const res = JSON.parse(text);
+        // form.setFieldsValue({
+        //   publicKey: res.pubKey,
+        //   data: res.originalData,
+        //   signedData: res.singData,
+        // });
+        setLocalStorage([key], JSON.stringify(res));
+        message.success(key + "上传成功")
+        setKeys(key)
+      };
+    } catch (err) {
+      console.log('er', err);
+    }
+  };
+
 
   return (
     <>
@@ -173,13 +220,28 @@ function SelectTable({ api = {} }) {
               alert(JSON.stringify(data));
               setLocalStorage('swagger-data', JSON.stringify(data));
             })
-            .catch(function(error) {
+            .catch(function (error) {
               api.logger.error(error);
             });
         }}
       >
         生成swagger数据流
       </Button>
+      <a>上传swagger-data</a>
+      <input
+        type="file"
+        id="files"
+        accept="application/json"
+        onChange={() => handleChange('files', 'swagger-data')}
+      ></input>
+      ====
+      <a>上传options</a>
+      <input
+        type="file"
+        id="files2"
+        accept="application/json"
+        onChange={() => handleChange('files2', 'options-key')}
+      ></input>
       <Button
         onClick={() => {
           const res = getLocalStorage('swagger-data');
@@ -191,11 +253,12 @@ function SelectTable({ api = {} }) {
       </Button>
       <Button
         onClick={async () => {
-          const { data } = await api.callRemote({
-            type: `org.plugin.template.options`,
-          });
-          alert(JSON.stringify(data));
-          setOptions(data);
+          // const { data } = await api.callRemote({
+          //   type: `org.plugin.template.options`,
+          // });
+          const res = getLocalStorage('options-key');
+          // alert(JSON.stringify(data));
+          setOptions(res);
         }}
       >
         获取options
@@ -211,7 +274,7 @@ function SelectTable({ api = {} }) {
         />
       </div>
       <Modal
-        visible={visible}
+        open={visible}
         onOk={handleOk}
         onCancel={() => setVisible(false)}
       >
