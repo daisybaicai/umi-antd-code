@@ -35,6 +35,11 @@ function SelectTable({ api = {} }) {
   const [options, setOptions] = useState({});
 
   const handleShow = (record, t) => {
+    if(Object.keys(options)?.length <= 0) {
+      message.error("请补充options");
+      return;
+    }
+
     setType(t);
     if (record.children) {
       return;
@@ -86,7 +91,7 @@ function SelectTable({ api = {} }) {
     { title: 'url', dataIndex: 'url', key: 'url' },
     {
       title: 'Action',
-      render: (_, record) => (
+      render: (_, record) => !record.children ? (
         <Space>
           <a onClick={() => handleShow(record, 'list')}>列表</a>
           <a onClick={() => handleShow(record, 'form')}>form</a>
@@ -96,7 +101,7 @@ function SelectTable({ api = {} }) {
           <a onClick={() => handleShow(record, 'dialog')}>弹框提问</a> */}
           <a onClick={() => handleShow(record, 'dialog')}>弹框提问</a>
         </Space>
-      ),
+      ): null,
       // <a onClick={() => handleShow(record)}>查看</a>,
     },
   ];
@@ -198,9 +203,20 @@ function SelectTable({ api = {} }) {
         //   data: res.originalData,
         //   signedData: res.singData,
         // });
-        setLocalStorage([key], JSON.stringify(res));
-        message.success(key + "上传成功")
-        setKeys(key)
+        if(key === 'options-key') {
+          // 保证key是对的.
+          if(Object.keys(res).includes('prefixHost')) {
+            setLocalStorage([key], JSON.stringify(res));
+            message.success(key + "上传成功")
+            setKeys(key)
+          } else {
+            message.error("请上传正确的options")
+          }
+        } else {
+          setLocalStorage([key], JSON.stringify(res));
+          message.success(key + "上传成功")
+          setKeys(key)
+        }
       };
     } catch (err) {
       console.log('er', err);
@@ -209,15 +225,36 @@ function SelectTable({ api = {} }) {
 
   console.log('getTransformArr(initialObjects)', getTransformArr(initialObjects))
 
+  const handleDownload = () => {
+    const obj = {
+      "prefixHost": "/api",
+      "prefix": ["/api/v1", "/api"],
+      "url": "http://10.1.42.180:8090/admin/v2/api-docs?group=%E5%90%8E%E5%8F%B0API%E5%88%86%E7%BB%84",
+      "ignored": {
+        "params": ["X-Access-Token", "pageNum", "pageSize"],
+        "response": ["current", "pages", "size", "total", "count"]
+      },
+      "code": 0,
+      "data": "data",
+      "items": "items"
+    };
+    // encodeURIComponent解决中文乱码。
+    var blob = new Blob([JSON.stringify(obj)]);
+    const aHtml = document.createElement('a');
+    aHtml.download = 'options.json'; // 通过修改后缀名伪装成Excel
+    aHtml.href = URL.createObjectURL(blob);
+    aHtml.click();
+  }
 
   return (
     <>
       <p>
-        用法： 1.
-        需要在localstorage里面增加一个swagger-data，里面的值需要通过后端的接口的类似http://10.1.42.180:8090/admin/v2/api-docs?group=%E5%90%8E%E5%8F%B0API%E5%88%86%E7%BB%84的接口结果
+        用法： 
+        1.下载swagger内容，保存为json，上传至swagger-data
+        里面的值需要通过后端的接口的类似http://10.1.42.180:8090/admin/v2/api-docs?group=%E5%90%8E%E5%82F%B0API%E5%88%86%E7%BB%84的接口结果
       </p>
-      <p>2. 先点击获取options，再填充table</p>
-      <Button
+      <p>2.上传本地options</p>
+      {/* <Button
         onClick={async () => {
           if (!options?.url) {
             alert('暂无匹配url');
@@ -242,7 +279,7 @@ function SelectTable({ api = {} }) {
         }}
       >
         生成swagger数据流
-      </Button>
+      </Button> */}
       <a>上传swagger-data</a>
       <input
         type="file"
@@ -258,7 +295,8 @@ function SelectTable({ api = {} }) {
         accept="application/json"
         onChange={() => handleChange('files2', 'options-key')}
       ></input>
-      <Button
+      <a onClick={() => handleDownload()}>下载默认options</a>
+      {/* <Button
         onClick={() => {
           const res = getLocalStorage('swagger-data');
           alert(res);
@@ -278,7 +316,7 @@ function SelectTable({ api = {} }) {
         }}
       >
         获取options
-      </Button>
+      </Button> */}
       <div >
         <Table
           styles={{ background: 'white' }}
