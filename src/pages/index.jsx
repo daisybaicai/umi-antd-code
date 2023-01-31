@@ -107,16 +107,20 @@ function SelectTable({ api = {} }) {
   ];
 
   const [visible, setVisible] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [rKeys, setRKeys] = useState([]);
 
   const [initialObjects, setInitialObjects] = useState({});
 
   const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
+    onChange: (rKeys, selectedRows) => {
       console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
+        `selectedRowKeys: ${rKeys}`,
         'selectedRows: ',
         selectedRows,
       );
+      setSelectedRowKeys(rKeys)
+      setRKeys(selectedRows.filter(item => item.id))
     },
     onSelect: (record, selected, selectedRows) => {
       console.log(record, selected, selectedRows);
@@ -124,6 +128,7 @@ function SelectTable({ api = {} }) {
     onSelectAll: (selected, selectedRows, changeRows) => {
       console.log(selected, selectedRows, changeRows);
     },
+    selectedRowKeys,
   };
 
   const vsSaveFile = (payload) => {
@@ -223,7 +228,7 @@ function SelectTable({ api = {} }) {
     }
   };
 
-  console.log('getTransformArr(initialObjects)', getTransformArr(initialObjects))
+  // console.log('getTransformArr(initialObjects)', getTransformArr(initialObjects))
 
   const handleDownload = () => {
     const obj = {
@@ -244,6 +249,17 @@ function SelectTable({ api = {} }) {
     aHtml.download = 'options.json'; // 通过修改后缀名伪装成Excel
     aHtml.href = URL.createObjectURL(blob);
     aHtml.click();
+  }
+
+  const createApi = () => {
+    const msgObj = {
+      cmd: 'createApi',
+      data: {
+        options,
+        arr: rKeys
+      }
+    }
+    window.parent.postMessage(msgObj, '*')
   }
 
   return (
@@ -295,7 +311,7 @@ function SelectTable({ api = {} }) {
         accept="application/json"
         onChange={() => handleChange('files2', 'options-key')}
       ></input>
-      <a onClick={() => handleDownload()}>下载默认options</a>
+      <Button onClick={() => handleDownload()}>下载默认options</Button>
       {/* <Button
         onClick={() => {
           const res = getLocalStorage('swagger-data');
@@ -317,6 +333,7 @@ function SelectTable({ api = {} }) {
       >
         获取options
       </Button> */}
+      <Button onClick={() => createApi()}>批量生成api request</Button>
       <div >
         <Table
           styles={{ background: 'white' }}
