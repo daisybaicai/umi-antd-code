@@ -6,6 +6,7 @@ import { getLocalStorage, setLocalStorage } from '../utils/utils';
 import {
   FORM_TYPES,
 } from '../common/enum';
+import { handleApi, handleRequest } from '../utils/api';
 
 const DictCustomSelect = React.forwardRef(
   ({ data = {}, value = undefined, onChange = () => { } }, ref) => {
@@ -262,6 +263,35 @@ function SelectTable({ api = {} }) {
     window.parent.postMessage(msgObj, '*')
   }
 
+    const createBigScreenApi = () => {
+    const msgObj = {
+      cmd: 'createBigScreenApi',
+      data: {
+        options,
+        arr: rKeys
+      }
+    }
+
+    let resultText = ``;
+
+    for (let i = 0; i < rKeys.length; i++) {
+      const item = rKeys[i];
+      const r = handleApi(item, options, false);
+      resultText += r;
+    }
+
+    let resultTextR2 = ``;
+
+    for (let i = 0; i < rKeys.length; i++) {
+      const item = rKeys[i];
+      const r = handleRequest(item, options, false, i);
+      resultTextR2 += r;
+    }
+    console.log('result', resultText)
+    console.log('result', resultTextR2)
+    // window.parent.postMessage(msgObj, '*')
+  }
+
   return (
     <>
       <p>
@@ -334,6 +364,11 @@ function SelectTable({ api = {} }) {
         获取options
       </Button> */}
       <Button onClick={() => createApi()}>批量生成api request</Button>
+      {
+        getLocalStorage('dsy-test') && (
+          <Button onClick={() => createBigScreenApi()}>request 大屏用</Button>
+        )
+      }
       <div >
         <Table
           styles={{ background: 'white' }}
