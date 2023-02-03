@@ -51,19 +51,21 @@ export const handleRequest =  (payload, options, checkParams = true, index) => {
   
     const hasparams = checkParams ? Array.isArray(params) && params.length > 0: true;
   
-  
+    const DataName = url.split('/').reverse()[0] + 'Data';
+    const setName = `set${DataName.charAt(0).toUpperCase()+ DataName.slice(1)}`
+
     let requestUrl = "`${HOST}";
     requestUrl+= sliceApiUrl(url, options?.prefixHost);
     requestUrl+="`";
   
     const code = `
       \n
-      const [data${index}, setData${index}] = useState({});
+      const [${DataName}, ${setName}] = useState({});
       // ${description}
       const get${functionName} = () => {
-        ${functionName}().then(res => {
+        fetch${functionName}().then(res => {
             if(res.code === 0) {
-                setData${index}(res.data)
+                ${setName}(res.data)
             }
         })
       }
