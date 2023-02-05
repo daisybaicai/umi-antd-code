@@ -85,11 +85,14 @@ function SelectTable({ api = {} }) {
   };
 
   const columns = [
-    { title: 'tags', dataIndex: 'tags' },
-    { title: 'id', dataIndex: 'id' },
-    { title: '类型', dataIndex: 'method', key: 'method' },
-    { title: '描述', dataIndex: 'description', key: 'description' },
-    { title: 'url', dataIndex: 'url', key: 'url' },
+    { title: 'tags', dataIndex: 'tags', width: 300, render: (text, record) => {
+      if(record.children) {
+        return text;
+      }
+      return record?.description;
+    } },
+    { title: '类型', dataIndex: 'method', key: 'method', width: 80 },
+    { title: 'url', dataIndex: 'url', key: 'url', width: 240 },
     {
       title: 'Action',
       render: (_, record) => !record.children ? (
@@ -105,6 +108,8 @@ function SelectTable({ api = {} }) {
       ): null,
       // <a onClick={() => handleShow(record)}>查看</a>,
     },
+    // { title: '描述', dataIndex: 'description', key: 'description' },
+    // { title: 'id', dataIndex: 'id', render: (text) => text ? text?.slice(0,4) + '...': ''},
   ];
 
   const [visible, setVisible] = useState(false);
