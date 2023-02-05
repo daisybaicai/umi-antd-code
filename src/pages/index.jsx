@@ -260,6 +260,7 @@ function SelectTable({ api = {} }) {
         arr: rKeys
       }
     }
+    console.log('e', msgObj)
     window.parent.postMessage(msgObj, '*')
   }
 

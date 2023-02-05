@@ -14,6 +14,8 @@ export const getTransformArr = obj => {
         description: methodsObject.summary || '',
         tags: methodsObject.tags.join(''),
         id: methodsObject.operationId,
+        methods: method,
+        params: methodsObject?.parameters || [],
       });
       tags.add(methodsObject.tags.join(''));
     });
