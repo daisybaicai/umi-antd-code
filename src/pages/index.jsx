@@ -402,7 +402,7 @@ function SelectTable({ api = {} }) {
             <Input />
           </Form.Item>
           {(type === 'example') && (
-            <Form.Item label="isProForm" name="是否为proForm" valuePropName="checked">
+            <Form.Item label="是否为proForm" name="isProForm" valuePropName="checked">
               <Switch />
             </Form.Item>
           )}
