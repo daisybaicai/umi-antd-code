@@ -98,11 +98,9 @@ function SelectTable({ api = {} }) {
       render: (_, record) => !record.children ? (
         <Space>
           <a onClick={() => handleShow(record, 'list')}>列表</a>
+          <a onClick={() => handleShow(record, 'example')}>example</a>
           <a onClick={() => handleShow(record, 'form')}>form</a>
           <a onClick={() => handleShow(record, 'detail')}>detail</a>
-          {/* <a onClick={() => handleShow(record, 'api')}>api 生成</a> */}
-          {/* <a onClick={() => handleShow(record, 'action')}>columns操作</a>
-          <a onClick={() => handleShow(record, 'dialog')}>弹框提问</a> */}
           <a onClick={() => handleShow(record, 'dialog')}>弹框提问</a>
         </Space>
       ): null,
@@ -403,6 +401,11 @@ function SelectTable({ api = {} }) {
           <Form.Item label="componentsPath" name="componentsPath">
             <Input />
           </Form.Item>
+          {(type === 'example') && (
+            <Form.Item label="isProForm" name="是否为proForm" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+          )}
           {(type === 'dialog' || type === 'form') && (
             <Form.Item label="loadItem" name="loadItem" valuePropName="checked">
               <Switch />
