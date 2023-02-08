@@ -99,9 +99,15 @@ function SelectTable({ api = {} }) {
         <Space>
           <a onClick={() => handleShow(record, 'list')}>列表</a>
           <a onClick={() => handleShow(record, 'example')}>example</a>
-          <a onClick={() => handleShow(record, 'form')}>form</a>
-          <a onClick={() => handleShow(record, 'detail')}>detail</a>
-          <a onClick={() => handleShow(record, 'dialog')}>弹框提问</a>
+          {
+            options?.checkForm && (
+              <>
+                <a onClick={() => handleShow(record, 'form')}>form</a>
+                <a onClick={() => handleShow(record, 'detail')}>detail</a>
+                <a onClick={() => handleShow(record, 'dialog')}>弹框提问</a>  
+              </> 
+            )
+          }
         </Space>
       ): null,
       // <a onClick={() => handleShow(record)}>查看</a>,
@@ -376,7 +382,7 @@ function SelectTable({ api = {} }) {
       <div >
         <Table
           styles={{ background: 'white' }}
-          scroll={{ x: 1500, y: '70vh' }}
+          scroll={{ y: '70vh' }}
           columns={columns}
           rowKey={record => record.url || record.tags}
           rowSelection={{ ...rowSelection, checkStrictly: false }}
