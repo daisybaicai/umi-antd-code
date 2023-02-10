@@ -98,7 +98,7 @@ function SelectTable({ api = {} }) {
       render: (_, record) => !record.children ? (
         <Space>
           <a onClick={() => handleShow(record, 'list')}>列表</a>
-          <a onClick={() => handleShow(record, 'example')}>example</a>
+          <a onClick={() => handleShow(record, 'example')}>详情表单实例</a>
           {
             options?.checkForm && (
               <>
