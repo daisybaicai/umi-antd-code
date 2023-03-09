@@ -66,6 +66,7 @@ export const transformParams = (parameters = [], definitions) => {
           const curProperties = curSchema.properties[key];
           return {
             name: key,
+            in: item.in,
             ...curProperties,
           };
         });
