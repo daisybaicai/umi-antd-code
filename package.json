@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "antd": "^5.1.4",
+    "grapesjs": "^0.19.5",
+    "grapesjs-react": "^4.0.1",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "umi": "^4.0.44"
   },
   "devDependencies": {

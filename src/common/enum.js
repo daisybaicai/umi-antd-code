@@ -65,3 +65,13 @@ export const FORM_TYPES = {
         desc: '文件'
     },
 }
+
+export const COMPONENT_TYPE =  {
+    TEXT :'text',
+    VIDEO :'video',
+    IMAGE :'image',
+    AUDIO :'audio',
+    CARD :'card',
+    TEXT_DROPED :'text-droped',
+  }
+  
