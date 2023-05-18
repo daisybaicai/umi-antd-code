@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Table, Button, Form, Modal, Input, Space, Select, Switch, message } from 'antd';
-import { getParams, getResponse, getTransformArr } from '../utils/data';
+import { getParams, getResponse, getSwaggerInfos, getTransformArr } from '../utils/data';
 import { useEffect, useState } from 'react';
 import { getLocalStorage, setLocalStorage } from '../utils/utils';
 import {
@@ -192,7 +192,9 @@ function SelectTable({ api = {} }) {
           localStorage.removeItem('swagger-data');
           return;
         }
-        setInitialObjects(JSON.parse(res).paths);
+        const dataObj = JSON.parse(res).paths;
+        setInitialObjects(dataObj);
+        setDataSource(getTransformArr(dataObj))
       }
     }
     if (key === 'options-key') {
@@ -313,6 +315,23 @@ function SelectTable({ api = {} }) {
     // window.parent.postMessage(msgObj, '*')
   }
 
+  const [searchValue, setSearchValue] = useState('');
+
+  const onSearch = () => {
+    const arr = getTransformArr(initialObjects);
+    let result = [];
+    if(!searchValue) {
+       result = arr;
+    } else {
+      result = arr.filter(item => {
+        return item.tags.includes(searchValue)
+      })
+    }
+    setDataSource(result)
+  }
+
+  const [dataSource, setDataSource] = useState([]);
+
   return (
     <>
       <p>
@@ -363,33 +382,13 @@ function SelectTable({ api = {} }) {
         onChange={() => handleChange('files2', 'options-key')}
       ></input>
       <Button onClick={() => handleDownload()}>下载默认options</Button>
-      {/* <Button
-        onClick={() => {
-          const res = getLocalStorage('swagger-data');
-          alert(res);
-          setInitialObjects(JSON.parse(res).paths);
-        }}
-      >
-        填充table
-      </Button>
-      <Button
-        onClick={async () => {
-          // const { data } = await api.callRemote({
-          //   type: `org.plugin.template.options`,
-          // });
-          const res = getLocalStorage('options-key');
-          // alert(JSON.stringify(data));
-          setOptions(res);
-        }}
-      >
-        获取options
-      </Button> */}
       <Button onClick={() => createApi()}>批量生成api request</Button>
       {
         getLocalStorage('dsy-test') && (
           <Button onClick={() => createBigScreenApi()}>request 大屏用</Button>
         )
       }
+      <Input value={searchValue} onChange={(v) => setSearchValue(v.target.value)} style={{width: '500px'}} placeholder="输入tags，可以过滤"/><Button onClick={onSearch}>搜素</Button>
       <div >
         <Table
           styles={{ background: 'white' }}
@@ -397,7 +396,7 @@ function SelectTable({ api = {} }) {
           columns={columns}
           rowKey={record => record.url || record.tags}
           rowSelection={{ ...rowSelection, checkStrictly: false }}
-          dataSource={getTransformArr(initialObjects)}
+          dataSource={dataSource}
         />
       </div>
       <Modal
