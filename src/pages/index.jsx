@@ -186,6 +186,12 @@ function SelectTable({ api = {} }) {
     if (key === 'swagger-data') {
       const res = getLocalStorage('swagger-data');
       if (res) {
+        const data = JSON.parse(res);;
+        if(!data.swagger) {
+          message.error('请检查swagger数据是否正确，已自动清空');
+          localStorage.removeItem('swagger-data');
+          return;
+        }
         setInitialObjects(JSON.parse(res).paths);
       }
     }
@@ -228,6 +234,11 @@ function SelectTable({ api = {} }) {
             message.error("请上传正确的options")
           }
         } else {
+          // 判断是否是swagger
+          if(!res.swagger) {
+            message.error("请上传正确的swagger文件")
+            return;
+          }
           setLocalStorage([key], JSON.stringify(res));
           message.success(key + "上传成功")
           setKeys(key)
