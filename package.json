@@ -9,7 +9,10 @@
     "start": "npm run dev"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.8.0",
     "antd": "^5.1.4",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "umi": "^4.0.44"
   },
   "devDependencies": {
