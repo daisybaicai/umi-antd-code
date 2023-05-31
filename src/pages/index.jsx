@@ -1,4 +1,3 @@
-import { DragOutlined } from "@ant-design/icons";
 import {
   Button,
   Form,
@@ -13,21 +12,30 @@ import {
 import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { FORM_TYPES } from "../common/enum";
+import { COL_TYPES, FORM_TYPES, PATTERN_TYPE } from "../common/enum";
 import { handleApi, handleRequest } from "../utils/api";
 import { getParams, getResponse, getTransformArr } from "../utils/data";
 import { getLocalStorage, setLocalStorage } from "../utils/utils";
-import DraggableItem from "./DraggableItem";
 
 const DictCustomSelect = React.forwardRef(
-  ({ data = {}, value = undefined, onChange = () => {} }, ref) => {
+  (
+    {
+      data = {},
+      value = undefined,
+      onChange = () => {},
+      placeholder = "请选择",
+      ...rest
+    },
+    ref
+  ) => {
     return (
       <Select
-        placeholder="请选择"
+        placeholder={placeholder}
         style={{ width: "100%" }}
         ref={ref}
         value={value}
         onChange={onChange}
+        {...rest}
       >
         {Object.keys(data).map((k) => (
           <Select.Option key={data[k]?.desc} value={data[k]?.code}>
@@ -115,7 +123,9 @@ function SelectTable({ api = {} }) {
         !record.children ? (
           <Space>
             <a onClick={() => handleShow(record, "list")}>列表</a>
-            <a onClick={() => handleShow(record, "example")}>详情表单实例</a>
+            <a onClick={() => handleShow(record, "form-detail")}>
+              详情表单实例
+            </a>
             {options?.checkForm && (
               <>
                 <a onClick={() => handleShow(record, "form")}>form</a>
@@ -412,7 +422,13 @@ function SelectTable({ api = {} }) {
           dataSource={dataSource}
         />
       </div>
-      <Modal open={visible} onOk={handleOk} onCancel={() => setVisible(false)}>
+      <Modal
+        open={visible}
+        onOk={handleOk}
+        onCancel={() => setVisible(false)}
+        width={800}
+      >
+        <h5>类型：{type}</h5>
         <DndProvider backend={HTML5Backend}>
           <Form form={form}>
             {/* <Form.Item label="model名称" name="modelName">
@@ -427,7 +443,7 @@ function SelectTable({ api = {} }) {
             <Form.Item label="componentsPath" name="componentsPath">
               <Input />
             </Form.Item>
-            {type === "example" && (
+            {type === "form-detail" && (
               <Form.Item
                 label="是否为proForm"
                 name="isProForm"
@@ -485,59 +501,126 @@ function SelectTable({ api = {} }) {
                             style={{ display: "flex", marginBottom: 8 }}
                             align="baseline"
                           >
-                            <DraggableItem index={index} moveField={move}>
-                              <Space
-                                key={key}
-                                style={{ display: "flex", marginBottom: 8 }}
-                                align="baseline"
-                              >
-                                <DragOutlined />
+                            {/* <DraggableItem index={index} moveField={move}> */}
+                            <Space
+                              key={key}
+                              style={{ display: "flex", marginBottom: 8 }}
+                              align="baseline"
+                            >
+                              {/* <DragOutlined /> */}
 
+                              <Form.Item
+                                {...restField}
+                                name={[name, "name"]}
+                                fieldKey={[fieldKey, "name"]}
+                                rules={[{ required: true, message: "name" }]}
+                              >
+                                <Input placeholder="name" />
+                              </Form.Item>
+                              <Form.Item
+                                {...restField}
+                                name={[name, "description"]}
+                                fieldKey={[fieldKey, "description"]}
+                                rules={[
+                                  { required: true, message: "description" },
+                                ]}
+                              >
+                                <Input placeholder="description" />
+                              </Form.Item>
+                              {(type === "dialog" ||
+                                type === "form" ||
+                                type === "form-detail") && (
                                 <Form.Item
                                   {...restField}
-                                  name={[name, "name"]}
-                                  fieldKey={[fieldKey, "name"]}
-                                  rules={[{ required: true, message: "name" }]}
-                                >
-                                  <Input placeholder="name" />
-                                </Form.Item>
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, "description"]}
-                                  fieldKey={[fieldKey, "description"]}
+                                  name={[name, "formType"]}
+                                  fieldKey={[fieldKey, "formType"]}
                                   rules={[
-                                    { required: true, message: "description" },
+                                    { required: true, message: "formType" },
                                   ]}
                                 >
-                                  <Input placeholder="description" />
+                                  <DictCustomSelect data={FORM_TYPES} />
                                 </Form.Item>
-                                {(type === "dialog" || type === "form") && (
-                                  <Form.Item
-                                    {...restField}
-                                    name={[name, "formType"]}
-                                    fieldKey={[fieldKey, "formType"]}
-                                    rules={[
-                                      { required: true, message: "formType" },
-                                    ]}
-                                  >
-                                    <DictCustomSelect data={FORM_TYPES} />
-                                  </Form.Item>
-                                )}
-                                <span onClick={() => remove(name)}>X</span>
-                                {/* <span
-                              onClick={() => move(index, index - 1)}
-                              style={{ cursor: "pointer" }}
-                            >
-                              ↑
-                            </span>
-                            <span
-                              onClick={() => move(index, index + 1)}
-                              style={{ cursor: "pointer" }}
-                            >
-                              ↓
-                            </span> */}
-                              </Space>
-                            </DraggableItem>
+                              )}
+                              {(type === "dialog" ||
+                                type === "form" ||
+                                type === "form-detail") && (
+                                <Form.Item
+                                  {...restField}
+                                  name={[name, "formPattern"]}
+                                  fieldKey={[fieldKey, "formPattern"]}
+                                  rules={[
+                                    {
+                                      required: false,
+                                      message: "表单的正则",
+                                    },
+                                  ]}
+                                >
+                                  <DictCustomSelect
+                                    data={PATTERN_TYPE}
+                                    allowClear
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                      (option?.label ?? "").includes(input)
+                                    }
+                                    placeholder="正则非必填"
+                                    filterSort={(optionA, optionB) =>
+                                      (optionA?.label ?? "")
+                                        .toLowerCase()
+                                        .localeCompare(
+                                          (optionB?.label ?? "").toLowerCase()
+                                        )
+                                    }
+                                  />
+                                </Form.Item>
+                              )}
+                              {(type === "dialog" ||
+                                type === "form" ||
+                                type === "form-detail") && (
+                                <Form.Item
+                                  {...restField}
+                                  name={[name, "isFormItem"]}
+                                  fieldKey={[fieldKey, "isFormItem"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message:
+                                        "是否是表单项，否就是不出现在表单项内",
+                                    },
+                                  ]}
+                                  valuePropName="checked"
+                                >
+                                  <Switch />
+                                </Form.Item>
+                              )}
+                              {(type === "dialog" ||
+                                type === "form" ||
+                                type === "form-detail") && (
+                                <Form.Item
+                                  {...restField}
+                                  name={[name, "formCol"]}
+                                  fieldKey={[fieldKey, "formCol"]}
+                                  rules={[
+                                    { required: true, message: "formCol" },
+                                  ]}
+                                >
+                                  <DictCustomSelect data={COL_TYPES} />
+                                </Form.Item>
+                              )}
+                              <span onClick={() => remove(name)}>X</span>
+                              <span
+                                onClick={() => move(index, index - 1)}
+                                style={{ cursor: "pointer" }}
+                              >
+                                ↑
+                              </span>
+                              <span
+                                onClick={() => move(index, index + 1)}
+                                style={{ cursor: "pointer" }}
+                              >
+                                ↓
+                              </span>
+                            </Space>
+                            {/* </DraggableItem> */}
                           </Space>
                         )
                       )}
@@ -561,46 +644,46 @@ function SelectTable({ api = {} }) {
                             style={{ display: "flex", marginBottom: 8 }}
                             align="baseline"
                           >
-                            <DraggableItem index={index} moveField={move}>
-                              <Space
-                                key={key}
-                                style={{ display: "flex", marginBottom: 8 }}
-                                align="baseline"
+                            {/* <DraggableItem index={index} moveField={move}> */}
+                            <Space
+                              key={key}
+                              style={{ display: "flex", marginBottom: 8 }}
+                              align="baseline"
+                            >
+                              {/* <DragOutlined /> */}
+                              <Form.Item
+                                {...restField}
+                                name={[name, "name"]}
+                                fieldKey={[fieldKey, "name"]}
+                                rules={[{ required: true, message: "name" }]}
                               >
-                                <DragOutlined />
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, "name"]}
-                                  fieldKey={[fieldKey, "name"]}
-                                  rules={[{ required: true, message: "name" }]}
-                                >
-                                  <Input placeholder="name" />
-                                </Form.Item>
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, "description"]}
-                                  fieldKey={[fieldKey, "description"]}
-                                  rules={[
-                                    { required: true, message: "description" },
-                                  ]}
-                                >
-                                  <Input placeholder="description" />
-                                </Form.Item>
-                                <span onClick={() => remove(name)}>X</span>
-                              </Space>
-                            </DraggableItem>
-                            {/* <span
-                              onClick={() => move(index, index - 1)}
-                              style={{ cursor: "pointer" }}
-                            >
-                              ↑33
-                            </span>
-                            <span
-                              onClick={() => move(index, index + 1)}
-                              style={{ cursor: "pointer" }}
-                            >
-                              ↓
-                            </span> */}
+                                <Input placeholder="name" />
+                              </Form.Item>
+                              <Form.Item
+                                {...restField}
+                                name={[name, "description"]}
+                                fieldKey={[fieldKey, "description"]}
+                                rules={[
+                                  { required: true, message: "description" },
+                                ]}
+                              >
+                                <Input placeholder="description" />
+                              </Form.Item>
+                              <span onClick={() => remove(name)}>X</span>
+                              <span
+                                onClick={() => move(index, index - 1)}
+                                style={{ cursor: "pointer" }}
+                              >
+                                ↑
+                              </span>
+                              <span
+                                onClick={() => move(index, index + 1)}
+                                style={{ cursor: "pointer" }}
+                              >
+                                ↓
+                              </span>
+                            </Space>
+                            {/* </DraggableItem> */}
                           </Space>
                         )
                       )}

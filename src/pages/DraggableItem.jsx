@@ -36,7 +36,6 @@ const DraggableItem2 = ({ index, moveField, children }) => {
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
         return;
       }
-      console.log('d', dragIndex, hoverIndex)
       return;
       moveField(dragIndex, hoverIndex);
       item.index = hoverIndex;
