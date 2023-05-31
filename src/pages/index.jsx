@@ -83,6 +83,8 @@ function SelectTable({ api = {} }) {
         return {
           ...item,
           formType: result,
+          isFormItem: true,
+          formCol: '8'
         };
       });
     }
@@ -580,13 +582,6 @@ function SelectTable({ api = {} }) {
                                   {...restField}
                                   name={[name, "isFormItem"]}
                                   fieldKey={[fieldKey, "isFormItem"]}
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message:
-                                        "是否是表单项，否就是不出现在表单项内",
-                                    },
-                                  ]}
                                   valuePropName="checked"
                                 >
                                   <Switch />

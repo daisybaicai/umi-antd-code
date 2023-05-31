@@ -132,6 +132,10 @@ export const COL_TYPES = {
     code: "8",
     desc: "COL8",
   },
+  16: {
+    code: "16",
+    desc: "COL16",
+  },
   24: {
     code: "24",
     desc: "COL24",
