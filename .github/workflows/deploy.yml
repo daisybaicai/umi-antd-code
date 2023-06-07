@@ -2,7 +2,7 @@ name: First GitHub Actions Demo
 on: 
   push:
     branches:
-      - master
+      - main
 
 jobs:
   Build:
