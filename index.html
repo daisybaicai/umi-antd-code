@@ -1,0 +1,48 @@
+
+<!doctype html>
+<html data-n-head-ssr lang="zh" data-n-head="%7B%22lang%22:%7B%22ssr%22:%22zh%22%7D%7D">
+  <head >
+    <title>保姆级GitHub Actions部署React应用的快速入门 - 掘金</title><meta data-n-head="ssr" charset="utf-8"><meta data-n-head="ssr" name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><meta data-n-head="ssr" name="apple-itunes-app" content="app-id=987739104"><meta data-n-head="ssr" name="theme-color" content="#ffffff"><meta data-n-head="ssr" name="msapplication-TileColor" content="#da532c"><meta data-n-head="ssr" vmid="description" name="description" content="最近在做基于react项目做一个低代码构建平台，使用Create React App脚手架创建的项目提交GitHub时，想通过GitHub Pages部署站点。然而，一知半解的我，趟了两天的坑啊..."><meta data-n-head="ssr" vmid="keywords" name="keywords" content="React.js,前端"><link data-n-head="ssr" rel="preconnect" href="//unpkg.byted-static.com/" crossorigin="anonymous"><link data-n-head="ssr" rel="preconnect" href="//lf3-cdn-tos.bytescm.com" crossorigin="anonymous"><link data-n-head="ssr" rel="preconnect" href="//mcs.snssdk.com" crossorigin="anonymous"><link data-n-head="ssr" rel="preconnect" href="//i.snssdk.com" crossorigin="anonymous"><link data-n-head="ssr" rel="dns-prefetch" href="//lf3-short.ibytedapm.com"><link data-n-head="ssr" rel="dns-prefetch" href="//lf3-cdn-tos.bytescm.com"><link data-n-head="ssr" rel="dns-prefetch" href="//api.juejin.cn"><link data-n-head="ssr" rel="dns-prefetch" href="//lf-cdn-tos.bytescm.com"><link data-n-head="ssr" rel="dns-prefetch" href="//unpkg.byted-static.com"><link data-n-head="ssr" rel="dns-prefetch" href="//p1-juejin.byteimg.com"><link data-n-head="ssr" rel="dns-prefetch" href="//p3-juejin.byteimg.com"><link data-n-head="ssr" rel="dns-prefetch" href="//p6-juejin.byteimg.com"><link data-n-head="ssr" rel="dns-prefetch" href="//p9-juejin.byteimg.com"><link data-n-head="ssr" rel="dns-prefetch" href="//p1-jj.byteimg.com"><link data-n-head="ssr" rel="dns-prefetch" href="//p2-jj.byteimg.com"><link data-n-head="ssr" rel="dns-prefetch" href="//p6-jj.byteimg.com"><link data-n-head="ssr" rel="dns-prefetch" href="//p9-jj.byteimg.com"><link data-n-head="ssr" rel="dns-prefetch" href="//mcs.snssdk.com"><link data-n-head="ssr" rel="dns-prefetch" href="//i.snssdk.com"><link data-n-head="ssr" rel="apple-touch-icon" sizes="180x180" href="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/favicons/apple-touch-icon.png"><link data-n-head="ssr" rel="icon" type="image/png" sizes="32x32" href="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/favicons/favicon-32x32.png"><link data-n-head="ssr" rel="icon" type="image/png" sizes="16x16" href="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/favicons/favicon-16x16.png"><link data-n-head="ssr" rel="mask-icon" href="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/favicons/safari-pinned-tab.svg" color="#1E80FF"><link data-n-head="ssr" rel="manifest" href="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/favicons/site.webmanifest"><link data-n-head="ssr" rel="search" title="掘金" href="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/search.xml" type="application/opensearchdescription+xml"><link data-n-head="ssr" rel="stylesheet" href="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/bytedesign.min.css"><link data-n-head="ssr" rel="canonical" href="https://juejin.cn/post/7000370463188713480"><script data-n-head="ssr" type="text/javascript" data-sdk-glue-default="load" src="https://lf-headquarters-speed.yhgfb-cn-static.com/obj/rc-client-security/web/glue/1.0.0.19/sdk-glue.js"></script><script data-n-head="ssr" type="text/javascript" data-sdk-glue-default="init">
+        (function (){
+          var options = {
+            bdms: {
+              aid: 2608,
+              paths: [
+                '/growth_api/v1/publish_benefit_history',
+                '/growth_api/v1/check_in',
+                '/growth_api/v1/lottery/draw',
+                '/growth_api/v1/lottery/ten_draw',
+                '/web_shorten',
+                '/user_api/v1/user/get',
+                '/interact_api/v1/digg/save',
+                '/interact_api/v1/digg/query_page',
+                '/interact_api/v1/comment/list',
+                '/interact_api/v1/comment/hots',
+                '/content_api/v1/article/detail',
+              ]
+            },
+            verifyCenter: {
+              interceptPathList: [
+                '/user_api/v1/user/get',
+                '/interact_api/v1/digg/save',
+                '/interact_api/v1/digg/query_page',
+                '/interact_api/v1/comment/list',
+                '/interact_api/v1/comment/hots',
+                '/content_api/v1/article/detail',
+              ],
+              commonOptions: {
+                aid: 2608,
+              },
+              captchaOptions: {
+                showMode: 'mask',
+              },
+            }
+          }
+          window._SdkGlueInit(options)
+        })();
+        </script><script data-n-head="ssr" vmid="slardar" type="text/javascript" crossorigin="anonymous">;(function (w, d, u, b, n, pc, ga, ae, po, s, p, e, t, pp) {pc = 'precollect';ga = 'getAttribute';ae = 'addEventListener';po = 'PerformanceObserver';s = function (m) {p = [].slice.call(arguments);p.push(Date.now(), location.href);(m == pc ? s.p.a : s.q).push(p)};s.q = [];s.p = { a: [] };w[n] = s;e = document.createElement('script');e.src = u + '?bid=' + b + '&globalName=' + n;e.crossOrigin = u.indexOf('sdk-web') > 0 ? 'anonymous' : 'use-credentials';d.getElementsByTagName('head')[0].appendChild(e);if (ae in w) {s.pcErr = function (e) {e = e || w.event;t = e.target || e.srcElement;if (t instanceof Element || t instanceof HTMLElement) {if (t[ga]('integrity')) {w[n](pc, 'sri', t[ga]('href') || t[ga]('src'))} else {w[n](pc, 'st', { tagName: t.tagName, url: t[ga]('href') || t[ga]('src') })}} else {w[n](pc, 'err', e.error || e.message)}};s.pcRej = function (e) {e = e || w.event;w[n](pc, 'err', e.reason || (e.detail && e.detail.reason))};w[ae]('error', s.pcErr, true);w[ae]('unhandledrejection', s.pcRej, true);};if('PerformanceLongTaskTiming' in w) {pp = s.pp = { entries: [] };pp.observer = new PerformanceObserver(function (l) {pp.entries = pp.entries.concat(l.getEntries())});pp.observer.observe({ entryTypes: ['longtask', 'largest-contentful-paint','layout-shift'] })}})(window,document,'https://lf3-short.ibytedapm.com/slardar/fe/sdk-web/browser.cn.js','2608','SlardarWeb')</script><script data-n-head="ssr" type="text/javascript" src="//unpkg.byted-static.com/latest/byted-imagex/slardar-plugin/browser/imageReport.js"></script><script data-n-head="ssr" type="text/javascript" src="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/cdn-retry/bundle-ddf375.js" id="cdn-retry"></script><script data-n-head="ssr" type="application/ld+json">[{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://juejin.cn/post/7000370463188713480"},"headline":"保姆级GitHub Actions部署React应用的快速入门","description":"最近在做基于react项目做一个低代码构建平台，使用Create React App脚手架创建的项目提交GitHub时，想通过GitHub Pages部署站点。然而，一知半解的我，趟了两天的坑啊...","image":[],"author":{"@type":"Organization","name":"大鹅鹅鹅"},"publisher":{"@type":"Organization","name":"掘金","logo":{"@type":"ImageObject","url":"//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/e08da34488b114bd4c665ba2fa520a31.svg"}},"datePublished":"2021-08-25T22:14:57+08:00","dateModified":"2021-08-26T11:47:22+08:00"},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","name":"稀土掘金","position":1,"item":"https://juejin.cn"},{"@type":"ListItem","name":"前端","position":2,"item":"https://juejin.cn/frontend"},{"@type":"ListItem","name":"文章","position":3}]}]</script><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/0dca91d.js" as="script"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/65b9bc8.js" as="script"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/fd655b2.js" as="script"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/app.6980401.css" as="style"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/4fb072c.js" as="script"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/layouts/default.8b37a43.css" as="style"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/d25af1c.js" as="script"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/57.ead249f.css" as="style"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/5ca7218.js" as="script"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/97.67b2a70.css" as="style"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/2ba60de.js" as="script"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/215.10b2c1c.css" as="style"><link rel="preload" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/8b18d67.js" as="script"><link rel="stylesheet" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/app.6980401.css"><link rel="stylesheet" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/layouts/default.8b37a43.css"><link rel="stylesheet" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/57.ead249f.css"><link rel="stylesheet" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/97.67b2a70.css"><link rel="stylesheet" href="//lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/215.10b2c1c.css">
+  </head>
+  <body >
+  hhh<p>3333<b>fds</b></p>
+  </body>
+</html>
