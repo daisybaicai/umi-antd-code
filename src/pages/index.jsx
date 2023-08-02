@@ -84,7 +84,7 @@ function SelectTable({ api = {} }) {
           ...item,
           formType: result,
           isFormItem: true,
-          formCol: '8'
+          formCol: "8",
         };
       });
     }
@@ -361,6 +361,21 @@ function SelectTable({ api = {} }) {
         里面的值需要通过后端的接口的类似http://10.1.42.180:8090/admin/v2/api-docs?group=%E5%90%8E%E5%82F%B0API%E5%88%86%E7%BB%84的接口结果
       </p>
       <p>2.上传本地options</p>
+      <Button
+        onClick={() => {
+          const msgObj = {
+            cmd: "getUrl",
+            data: {
+              options
+            },
+          };
+          console.log("getUrl", msgObj);
+          window.parent.postMessage(msgObj, "*");
+        }}
+      >
+        生成swagger数据流-测试版本功能
+      </Button>
+      <br />
       {/* <Button
         onClick={async () => {
           if (!options?.url) {
