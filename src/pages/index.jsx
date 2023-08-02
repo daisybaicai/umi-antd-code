@@ -354,6 +354,13 @@ function SelectTable({ api = {} }) {
 
   const [dataSource, setDataSource] = useState([]);
 
+  console.log('window-parent', window.parent)
+
+  window.addEventListener("message", (event) => {
+    const message = event.data;
+    console.log("监听信息", event, message);
+  });
+
   return (
     <>
       <p>
@@ -366,10 +373,10 @@ function SelectTable({ api = {} }) {
           const msgObj = {
             cmd: "getUrl",
             data: {
-              options
+              options,
             },
           };
-          console.log("getUrl", msgObj);
+          console.log("getUrl", msgObj, window.parent);
           window.parent.postMessage(msgObj, "*");
         }}
       >
