@@ -1,5 +1,7 @@
 import {
   Button,
+  Collapse,
+  Divider,
   Form,
   Input,
   message,
@@ -9,6 +11,7 @@ import {
   Switch,
   Table,
 } from "antd";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -354,61 +357,52 @@ function SelectTable({ api = {} }) {
 
   const [dataSource, setDataSource] = useState([]);
 
-  console.log('window-parent', window.parent)
-
-  window.addEventListener("message", (event) => {
-    const message = event.data;
-    console.log("监听信息", event, message);
-  });
-
   return (
     <>
-      <p>
-        用法： 1.下载swagger内容，保存为json，上传至swagger-data
-        里面的值需要通过后端的接口的类似http://10.1.42.180:8090/admin/v2/api-docs?group=%E5%90%8E%E5%82F%B0API%E5%88%86%E7%BB%84的接口结果
-      </p>
-      <p>2.上传本地options</p>
+      <Collapse defaultActiveKey={["1"]}>
+        <Collapse.Panel header="基础介绍以及options配置项" key="1">
+          <p>
+            用法： 1.下载swagger内容，保存为json，上传至swagger-data
+            里面的值需要通过后端的接口的类似http://10.1.42.180:8090/admin/v2/api-docs?group=%E5%90%8E%E5%82F%B0API%E5%88%86%E7%BB%84的接口结果
+          </p>
+          <p>2.上传本地options</p>
+          <div>
+            <h4>options 配置项预览</h4>
+            {JSON.stringify(options)}
+          </div>
+        </Collapse.Panel>
+      </Collapse>
+      <Divider />
       <Button
         onClick={() => {
-          const msgObj = {
-            cmd: "getUrl",
-            data: {
-              options,
-            },
-          };
-          console.log("getUrl", msgObj, window.parent);
-          window.parent.postMessage(msgObj, "*");
-        }}
-      >
-        生成swagger数据流-测试版本功能
-      </Button>
-      <br />
-      {/* <Button
-        onClick={async () => {
-          if (!options?.url) {
-            alert('暂无匹配url');
-            return;
-          }
-          fetch(options?.url, {
-            headers: {
-              'access-control-allow-origin': '*',
-            },
-          })
-            .then(response => {
-              return response.json(); // 先将结果转换为 JSON 对象
+          const url = options.url;
+          message.success(`获取url成功${url}`);
+          const hide = message.loading("正在读取接口中...");
+          axios
+            .get(url)
+            .then((res) => {
+              const data = res.data;
+              const key = "swagger-data";
+              if (!data.swagger) {
+                message.error("请上传正确的swagger文件");
+                return;
+              }
+              setLocalStorage([key], JSON.stringify(data));
+              message.success(key + "上传成功");
+              setKeys(key);
             })
-            .then(data => {
-              console.log(JSON.stringify(data));
-              alert(JSON.stringify(data));
-              setLocalStorage('swagger-data', JSON.stringify(data));
+            .catch((err) => {
+              console.log("接口报错", err);
+              message.error(err?.message || "接口读取失败");
             })
-            .catch(function (error) {
-              api.logger.error(error);
+            .finally(() => {
+              hide();
             });
         }}
       >
-        生成swagger数据流
-      </Button> */}
+        生成swagger数据流【需要将options的url设置成对应api.json的地址】
+      </Button>
+      <br />
       <a>上传swagger-data</a>
       <input
         type="file"
