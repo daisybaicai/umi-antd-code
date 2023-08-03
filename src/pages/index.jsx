@@ -378,8 +378,11 @@ function SelectTable({ api = {} }) {
           const url = options.url;
           message.success(`获取url成功${url}`);
           const hide = message.loading("正在读取接口中...");
+          console.log('get 凭证')
           axios
-            .get(url)
+            .get(url, {
+              withCredentials: true
+            })
             .then((res) => {
               const data = res.data;
               const key = "swagger-data";
