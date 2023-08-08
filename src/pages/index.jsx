@@ -515,7 +515,6 @@ function SelectTable({ api = {} }) {
                               style={{ display: "flex", marginBottom: 8 }}
                               align="baseline"
                             >
-                              {/* <DragOutlined /> */}
 
                               <Form.Item
                                 {...restField}
