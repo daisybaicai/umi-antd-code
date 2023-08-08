@@ -452,12 +452,6 @@ function SelectTable({ api = {} }) {
         <h5>类型：{type}</h5>
         <DndProvider backend={HTML5Backend}>
           <Form form={form}>
-            {/* <Form.Item label="model名称" name="modelName">
-              <Input />
-            </Form.Item> */}
-            {/* <Form.Item label="componentsName" name="componentsName">
-              <Input />
-            </Form.Item> */}
             <Form.Item label="isCreate" name="isCreate" valuePropName="checked">
               <Switch />
             </Form.Item>
@@ -493,12 +487,6 @@ function SelectTable({ api = {} }) {
                 <Form.Item label="modalForm" name="modalForm">
                   <Input />
                 </Form.Item>
-                {/* <Form.Item label="弹框类型" name="dialogType">
-                  <DictCustomSelect data={DIALOG_TYPE} />
-                </Form.Item>
-                <Form.Item label="弹框formRef" name="dialogFormRef">
-                  <DictCustomSelect data={DIALOG_FORM_REF_TYPE} />
-                </Form.Item> */}
               </>
             )}
             <Form.Item label="api相关" name="api">
@@ -522,7 +510,6 @@ function SelectTable({ api = {} }) {
                             style={{ display: "flex", marginBottom: 8 }}
                             align="baseline"
                           >
-                            {/* <DraggableItem index={index} moveField={move}> */}
                             <Space
                               key={key}
                               style={{ display: "flex", marginBottom: 8 }}
@@ -634,7 +621,6 @@ function SelectTable({ api = {} }) {
                                 ↓
                               </span>
                             </Space>
-                            {/* </DraggableItem> */}
                           </Space>
                         )
                       )}
@@ -658,13 +644,11 @@ function SelectTable({ api = {} }) {
                             style={{ display: "flex", marginBottom: 8 }}
                             align="baseline"
                           >
-                            {/* <DraggableItem index={index} moveField={move}> */}
                             <Space
                               key={key}
                               style={{ display: "flex", marginBottom: 8 }}
                               align="baseline"
                             >
-                              {/* <DragOutlined /> */}
                               <Form.Item
                                 {...restField}
                                 name={[name, "name"]}
@@ -697,7 +681,6 @@ function SelectTable({ api = {} }) {
                                 ↓
                               </span>
                             </Space>
-                            {/* </DraggableItem> */}
                           </Space>
                         )
                       )}
