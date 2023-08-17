@@ -6,49 +6,17 @@ import {
   Input,
   message,
   Modal,
-  Select,
   Space,
   Switch,
   Table,
 } from "antd";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { COL_TYPES, FORM_TYPES, PATTERN_TYPE } from "../common/enum";
+import { useEffect, useState } from "react";
 import { handleApi, handleRequest } from "../utils/api";
 import { getParams, getResponse, getTransformArr } from "../utils/data";
+import { addParamsDefault } from "../utils/params";
 import { getLocalStorage, setLocalStorage } from "../utils/utils";
-
-const DictCustomSelect = React.forwardRef(
-  (
-    {
-      data = {},
-      value = undefined,
-      onChange = () => {},
-      placeholder = "请选择",
-      ...rest
-    },
-    ref
-  ) => {
-    return (
-      <Select
-        placeholder={placeholder}
-        style={{ width: "100%" }}
-        ref={ref}
-        value={value}
-        onChange={onChange}
-        {...rest}
-      >
-        {Object.keys(data).map((k) => (
-          <Select.Option key={data[k]?.desc} value={data[k]?.code}>
-            {data[k]?.desc}
-          </Select.Option>
-        ))}
-      </Select>
-    );
-  }
-);
+import ParamsListForm from "./components/ParamsListForm";
 
 function SelectTable({ api = {} }) {
   const [form] = Form.useForm();
@@ -72,25 +40,9 @@ function SelectTable({ api = {} }) {
     let params = getParams(record);
     const response = getResponse(record);
 
-    // 增加默认formType配置项处理
-    if (Array.isArray(params) && params.length > 0) {
-      params = params.map((item) => {
-        let result = FORM_TYPES.INPUT.code;
-        if (item.description?.includes("时间")) {
-          result = FORM_TYPES.DATE.code;
-        }
-        if (item.description?.includes("附件")) {
-          result = FORM_TYPES.FILE.code;
-        }
+    params = addParamsDefault(params);
 
-        return {
-          ...item,
-          formType: result,
-          isFormItem: true,
-          formCol: "8",
-        };
-      });
-    }
+    console.log("params", params);
 
     const {
       ignored: { params: pIg = [], response: rIg = [] },
@@ -98,13 +50,11 @@ function SelectTable({ api = {} }) {
 
     // 'api', 'params'
     form.setFieldsValue({
-      api: {
-        description: record.description || "",
-        methods: record.method,
-        url: record.url,
-        params: params?.filter((item) => !pIg.includes(item?.name)) || [],
-        response: response?.filter((item) => !rIg.includes(item?.name)) || [],
-      },
+      params: params?.filter((item) => !pIg.includes(item?.name)) || [],
+      description: record.description || "",
+      methods: record.method,
+      url: record.url,
+      response: response?.filter((item) => !rIg.includes(item?.name)) || [],
     });
   };
 
@@ -168,6 +118,7 @@ function SelectTable({ api = {} }) {
   };
 
   const vsSaveFile = (payload) => {
+    console.log("writeFile", payload);
     const msgObj = {
       cmd: "writeFile",
       data: {
@@ -180,29 +131,19 @@ function SelectTable({ api = {} }) {
 
   const handleOk = () => {
     form.validateFields().then(async (values) => {
-      // async () => {
-      const { api: apiInfos = {}, ...rest } = values;
-      let res = [];
-      if (apiInfos?.response) {
-        res = apiInfos?.response;
-      }
-      apiInfos.response = res;
+      const { params, response, url, description, method, ...rest } = values;
+      const apiInfos = {
+        params,
+        response,
+        url,
+        description,
+        method,
+      };
       const payload = {
         actionType: type,
         ...rest,
         api: apiInfos,
       };
-      // 如何通讯给vscode 插件，然后就行了
-      // const { data } = await api.callRemote({
-      //   type: `org.plugin.template.${type}`,
-      //   payload: {
-      //     text: JSON.stringify(payload),
-      //   },
-      // });
-      // if (data) {
-      //   setVisible(false);
-      // }
-      // }
       vsSaveFile(payload);
       setVisible(false);
     });
@@ -246,11 +187,6 @@ function SelectTable({ api = {} }) {
       reader.onload = function () {
         const text = this.result;
         const res = JSON.parse(text);
-        // form.setFieldsValue({
-        //   publicKey: res.pubKey,
-        //   data: res.originalData,
-        //   signedData: res.singData,
-        // });
         if (key === "options-key") {
           // 保证key是对的.
           if (Object.keys(res).includes("prefixHost")) {
@@ -275,8 +211,6 @@ function SelectTable({ api = {} }) {
       console.log("er", err);
     }
   };
-
-  // console.log('getTransformArr(initialObjects)', getTransformArr(initialObjects))
 
   const handleDownload = () => {
     const obj = {
@@ -378,10 +312,10 @@ function SelectTable({ api = {} }) {
           const url = options.url;
           message.success(`获取url成功${url}`);
           const hide = message.loading("正在读取接口中...");
-          console.log('get 凭证')
+          console.log("get 凭证");
           axios
             .get(url, {
-              withCredentials: true
+              withCredentials: true,
             })
             .then((res) => {
               const data = res.data;
@@ -450,190 +384,56 @@ function SelectTable({ api = {} }) {
         width={800}
       >
         <h5>类型：{type}</h5>
-        <DndProvider backend={HTML5Backend}>
-          <Form form={form}>
-            <Form.Item label="isCreate" name="isCreate" valuePropName="checked">
+        <Form form={form}>
+          <Form.Item label="isCreate" name="isCreate" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+          <Form.Item label="componentsPath" name="componentsPath">
+            <Input />
+          </Form.Item>
+          {type === "form-detail" && (
+            <Form.Item
+              label="是否为proForm"
+              name="isProForm"
+              valuePropName="checked"
+            >
               <Switch />
             </Form.Item>
-            <Form.Item label="componentsPath" name="componentsPath">
+          )}
+          {(type === "dialog" || type === "form") && (
+            <Form.Item label="loadItem" name="loadItem" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+          )}
+          {type === "dialog" && (
+            <>
+              <Form.Item label="handleName" name="handleName">
+                <Input />
+              </Form.Item>
+              <Form.Item label="modalParams" name="modalParams">
+                <Input />
+              </Form.Item>
+              <Form.Item label="modalForm" name="modalForm">
+                <Input />
+              </Form.Item>
+            </>
+          )}
+          <Form.Item label="api相关">
+            <Form.Item label="url" name={["url"]}>
               <Input />
             </Form.Item>
-            {type === "form-detail" && (
-              <Form.Item
-                label="是否为proForm"
-                name="isProForm"
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            )}
-            {(type === "dialog" || type === "form") && (
-              <Form.Item
-                label="loadItem"
-                name="loadItem"
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            )}
-            {type === "dialog" && (
-              <>
-                <Form.Item label="handleName" name="handleName">
-                  <Input />
-                </Form.Item>
-                <Form.Item label="modalParams" name="modalParams">
-                  <Input />
-                </Form.Item>
-                <Form.Item label="modalForm" name="modalForm">
-                  <Input />
-                </Form.Item>
-              </>
-            )}
-            <Form.Item label="api相关" name="api">
-              <Form.Item label="url" name={["api", "url"]}>
-                <Input />
-              </Form.Item>
-              <Form.Item label="methods" name={["api", "methods"]}>
-                <Input />
-              </Form.Item>
-              <Form.Item label="description" name={["api", "description"]}>
-                <Input />
-              </Form.Item>
-              <Form.Item label="params">
-                <Form.List name={["api", "params"]}>
-                  {(fields, { add, remove, move }) => (
-                    <>
-                      {fields.map(
-                        ({ key, name, fieldKey, ...restField }, index) => (
-                          <Space
-                            key={key}
-                            style={{ display: "flex", marginBottom: 8 }}
-                            align="baseline"
-                          >
-                            <Space
-                              key={key}
-                              style={{ display: "flex", marginBottom: 8 }}
-                              align="baseline"
-                            >
-
-                              <Form.Item
-                                {...restField}
-                                name={[name, "name"]}
-                                fieldKey={[fieldKey, "name"]}
-                                rules={[{ required: true, message: "name" }]}
-                              >
-                                <Input placeholder="name" />
-                              </Form.Item>
-                              <Form.Item
-                                {...restField}
-                                name={[name, "description"]}
-                                fieldKey={[fieldKey, "description"]}
-                                rules={[
-                                  { required: true, message: "description" },
-                                ]}
-                              >
-                                <Input placeholder="description" />
-                              </Form.Item>
-                              {(type === "dialog" ||
-                                type === "form" ||
-                                type === "form-detail") && (
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, "formType"]}
-                                  fieldKey={[fieldKey, "formType"]}
-                                  rules={[
-                                    { required: true, message: "formType" },
-                                  ]}
-                                >
-                                  <DictCustomSelect data={FORM_TYPES} />
-                                </Form.Item>
-                              )}
-                              {(type === "dialog" ||
-                                type === "form" ||
-                                type === "form-detail") && (
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, "formPattern"]}
-                                  fieldKey={[fieldKey, "formPattern"]}
-                                  rules={[
-                                    {
-                                      required: false,
-                                      message: "表单的正则",
-                                    },
-                                  ]}
-                                >
-                                  <DictCustomSelect
-                                    data={PATTERN_TYPE}
-                                    allowClear
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                      (option?.label ?? "").includes(input)
-                                    }
-                                    placeholder="正则非必填"
-                                    filterSort={(optionA, optionB) =>
-                                      (optionA?.label ?? "")
-                                        .toLowerCase()
-                                        .localeCompare(
-                                          (optionB?.label ?? "").toLowerCase()
-                                        )
-                                    }
-                                  />
-                                </Form.Item>
-                              )}
-                              {(type === "dialog" ||
-                                type === "form" ||
-                                type === "form-detail") && (
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, "isFormItem"]}
-                                  fieldKey={[fieldKey, "isFormItem"]}
-                                  valuePropName="checked"
-                                >
-                                  <Switch />
-                                </Form.Item>
-                              )}
-                              {(type === "dialog" ||
-                                type === "form" ||
-                                type === "form-detail") && (
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, "formCol"]}
-                                  fieldKey={[fieldKey, "formCol"]}
-                                  rules={[
-                                    { required: true, message: "formCol" },
-                                  ]}
-                                >
-                                  <DictCustomSelect data={COL_TYPES} />
-                                </Form.Item>
-                              )}
-                              <span onClick={() => remove(name)}>X</span>
-                              <span
-                                onClick={() => move(index, index - 1)}
-                                style={{ cursor: "pointer" }}
-                              >
-                                ↑
-                              </span>
-                              <span
-                                onClick={() => move(index, index + 1)}
-                                style={{ cursor: "pointer" }}
-                              >
-                                ↓
-                              </span>
-                            </Space>
-                          </Space>
-                        )
-                      )}
-                      <Form.Item>
-                        <Button type="dashed" onClick={() => add()} block>
-                          Add field
-                        </Button>
-                      </Form.Item>
-                    </>
-                  )}
-                </Form.List>
-              </Form.Item>
-              <Form.Item label="response">
-                <Form.List name={["api", "response"]}>
+            <Form.Item label="methods" name={["methods"]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="description" name={["description"]}>
+              <Input />
+            </Form.Item>
+            <h5>params</h5>
+            <ParamsListForm form={form} type={type} />
+            <Divider />
+            <Collapse defaultActiveKey={["1"]} key="response">
+              <Collapse.Panel header="response" key="1">
+                <Form.List name={["response"]}>
                   {(fields, { add, remove, move }) => (
                     <>
                       {fields?.map(
@@ -691,10 +491,10 @@ function SelectTable({ api = {} }) {
                     </>
                   )}
                 </Form.List>
-              </Form.Item>
-            </Form.Item>
-          </Form>
-        </DndProvider>
+              </Collapse.Panel>
+            </Collapse>
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   );
