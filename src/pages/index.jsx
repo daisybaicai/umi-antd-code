@@ -293,7 +293,9 @@ function SelectTable({ api = {} }) {
 
   return (
     <>
-      版本:0.1.4
+      版本:0.1.4 <Button onClick={() => {
+        window.location.reload();
+      }}>强制刷新</Button>
       <Collapse defaultActiveKey={["1"]}>
         <Collapse.Panel header="基础介绍以及options配置项" key="1">
           <p>
