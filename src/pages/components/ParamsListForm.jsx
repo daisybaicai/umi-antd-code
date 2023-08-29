@@ -1,8 +1,7 @@
-import { Button, Collapse, Divider, Form, Input, Select, Space } from "antd";
+import { Button, Collapse, Divider, Form, Input, Space } from "antd";
 import React from "react";
 import { COL_TYPES, FORM_TYPES, PATTERN_TYPE } from "../../common/enum";
-import DictCustomSelect from '../../components/DictCustomSelect';
-
+import DictCustomSelect from "../../components/DictCustomSelect";
 
 function ParamsListForm({ type = "", form }) {
   return (
@@ -148,8 +147,13 @@ function ParamsListForm({ type = "", form }) {
                   const paramPath = ["params", index];
                   if (hasChildren) {
                     return (
-                      <>
+                      <div>
                         list相关字段
+                        <Button onClick={() => {
+                          form.setFieldsValue({
+                            params: form.getFieldValue("params").filter((item, i) => i !== index)
+                          })
+                        }}>删除</Button>
                         <Form.Item name={[paramName, "name"]} label="name">
                           <Input />
                         </Form.Item>
@@ -157,6 +161,9 @@ function ParamsListForm({ type = "", form }) {
                           name={[paramName, "description"]}
                           label="描述"
                         >
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name={[paramName, "type"]} label="类型">
                           <Input />
                         </Form.Item>
                         <Collapse defaultActiveKey={["1"]} key={paramKey}>
@@ -367,7 +374,7 @@ function ParamsListForm({ type = "", form }) {
                           </Collapse.Panel>
                         </Collapse>
                         <Divider />
-                      </>
+                      </div>
                     );
                   } else {
                     return null;

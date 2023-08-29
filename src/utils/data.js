@@ -65,11 +65,22 @@ export const transformParams = (parameters = [], definitions) => {
         const properties = Object.keys(curSchema?.properties).map(key => {
           const curProperties = curSchema.properties[key];
           // 如果他还是refs的情况，将他进行处理，并且如果是type 是array的情况，将他进行处理
-          if(curProperties?.items?.originalRef) {
+          if(curProperties?.items?.originalRef && curProperties?.type === 'array') {
             const res = getSchema(curProperties?.items, definitions);
             return {
               name: key,
               type: curProperties?.type,
+              description: curProperties?.description,
+              in: item.in,
+              children: res,
+            }
+          }
+          // 补充object 的情况
+          if(curProperties?.originalRef) {
+            const res = getSchema(curProperties, definitions);
+            return {
+              name: key,
+              type: curProperties?.type || 'object',
               description: curProperties?.description,
               in: item.in,
               children: res,
