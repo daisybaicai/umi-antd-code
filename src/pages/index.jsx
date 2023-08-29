@@ -293,6 +293,7 @@ function SelectTable({ api = {} }) {
 
   return (
     <>
+      版本:0.1.4
       <Collapse defaultActiveKey={["1"]}>
         <Collapse.Panel header="基础介绍以及options配置项" key="1">
           <p>
