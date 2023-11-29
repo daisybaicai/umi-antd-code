@@ -21,12 +21,12 @@ export const addParamsDefault = (params) => {
   if (!Array.isArray(params)) {
     return [];
   }
-  return params.map((item) => {
-    const formType = processFormType(item.description);
-    const children = item.children || [];
-    const processedChildren = children.map((child) => ({
+  return params?.map((item) => {
+    const formType = processFormType(item?.description);
+    const children = item?.children || [];
+    const processedChildren = children?.map((child) => ({
       ...child,
-      formType: processFormType(child.description),
+      formType: processFormType(child?.description),
       isFormItem: true,
       formCol: "8",
     }));

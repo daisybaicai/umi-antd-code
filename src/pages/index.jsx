@@ -37,8 +37,9 @@ function SelectTable({ api = {} }) {
     }
 
     setVisible(true);
-    let params = getParams(record);
-    const response = getResponse(record);
+    console.log("🚀 ~ file: index.jsx:41 ~ handleShow ~ options:", options)
+    let params = getParams(record, options);
+    const response = getResponse(record, options);
 
     params = addParamsDefault(params);
 
@@ -154,7 +155,7 @@ function SelectTable({ api = {} }) {
       const res = getLocalStorage("swagger-data");
       if (res) {
         const data = JSON.parse(res);
-        if (!data.swagger) {
+        if (!data.swagger && !data.openapi) {
           message.error("请检查swagger数据是否正确，已自动清空");
           localStorage.removeItem("swagger-data");
           return;
@@ -198,7 +199,7 @@ function SelectTable({ api = {} }) {
           }
         } else {
           // 判断是否是swagger
-          if (!res.swagger) {
+          if (!res.swagger && !res.openapi) {
             message.error("请上传正确的swagger文件");
             return;
           }
@@ -323,7 +324,7 @@ function SelectTable({ api = {} }) {
             .then((res) => {
               const data = res.data;
               const key = "swagger-data";
-              if (!data.swagger) {
+              if (!data.swagger && !data.openapi) {
                 message.error("请上传正确的swagger文件");
                 return;
               }

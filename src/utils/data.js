@@ -8,6 +8,14 @@ export const getTransformArr = obj => {
     const methods = Object.keys(pathObj);
     methods.forEach(method => {
       const methodsObject = pathObj[method];
+      const parametersArr = methodsObject?.parameters?.map(item => {
+        return {
+          description: item?.name,
+          type: item?.schema?.type,
+          ...item,
+        }
+      }) || []
+
       data.push({
         url: path,
         method,
@@ -15,7 +23,7 @@ export const getTransformArr = obj => {
         tags: methodsObject.tags.join(''),
         id: methodsObject.operationId,
         methods: method,
-        params: methodsObject?.parameters || [],
+        params: parametersArr || [],
       });
       tags.add(methodsObject.tags.join(''));
     });
@@ -31,13 +39,18 @@ export const getTransformArr = obj => {
     };
   });
 
-
   return tagsArr;
 };
 
 export const getSwaggerInfos = () => {
   const swaggerData = getLocalStorage('swagger-data');
   const parsed = JSON.parse(swaggerData) || {};
+  // 特殊处理3.0也增加defintions
+
+  // 如果是3.0特殊处理
+  if(parsed.openapi) {
+    parsed.definitions = parsed?.components?.schemas;
+  }
   return parsed;
 };
 
@@ -55,18 +68,22 @@ export const transformParams = (parameters = [], definitions) => {
   const result =
     Array.isArray(parameters) &&
     parameters.map(item => {
-      if (item.schema) {
+      if (item.schema && item.schema['$ref']) {
         const schemaNameRef = item.schema['$ref'];
-        const schemaName = schemaNameRef.substring(
+        const schemaName = schemaNameRef?.substring(
           schemaNameRef.lastIndexOf('/') + 1,
         );
         const curSchema = definitions[schemaName];
 
-        const properties = Object.keys(curSchema?.properties).map(key => {
+        if(!curSchema?.properties) {
+          return;
+        }
+
+        const properties = Object.keys(curSchema?.properties)?.map(key => {
           const curProperties = curSchema.properties[key];
           // 如果他还是refs的情况，将他进行处理，并且如果是type 是array的情况，将他进行处理
           if(curProperties?.items?.originalRef && curProperties?.type === 'array') {
-            const res = getSchema(curProperties?.items, definitions);
+            const res = getSchema(curProperties?.items, definitions,);
             return {
               name: key,
               type: curProperties?.type,
@@ -100,7 +117,7 @@ export const transformParams = (parameters = [], definitions) => {
   return Array.isArray(result) ? result.flat() : [];
 };
 
-export const getParams = record => {
+export const getParams = (record, options) => {
   // 获取数据源
   const { paths = {}, definitions = {} } = getSwaggerInfos();
   const { parameters = [] } = getCurrentPathInfo(record, paths);
@@ -112,7 +129,7 @@ export const getParams = record => {
   return transFormedParams;
 };
 
-export const getResponse = record => {
+export const getResponse = (record, options) => {
   // 获取数据源
   const { paths = {}, definitions = {} } = getSwaggerInfos();
   const { responses = [] } = getCurrentPathInfo(record, paths);
@@ -131,15 +148,19 @@ const flat = arr => {
 export const getSchema = (schema, definitions) => {
   if (schema) {
     const schemaNameRef = schema['$ref'] || '';
-    const schemaName = schemaNameRef.substring(
+    const schemaName = schemaNameRef?.substring(
       schemaNameRef.lastIndexOf('/') + 1,
     );
     const curSchema = schemaName ? definitions[schemaName] : {};
 
     const properties =
-      Object.keys(curSchema?.properties || {}).map(key => {
+      Object.keys(curSchema?.properties || {}).filter(key => {
         const curProperties = curSchema.properties[key];
-        if (curProperties?.items?.originalRef) {
+        // 废弃的直接删除
+        return !curProperties.deprecated && !curProperties.writeOnly;
+      }).map(key => {
+        const curProperties = curSchema.properties[key];
+        if (curProperties?.items?.originalRef || curProperties?.items?.$ref) {
           const res = getSchema(curProperties?.items, definitions);
           return res;
         }
@@ -154,7 +175,7 @@ export const getSchema = (schema, definitions) => {
 };
 
 export const transformResponse = (obj, definitions) => {
-  const schema = obj?.schema || {};
+  const schema = obj?.schema || obj?.content?.['*/*']?.schema || {};
   if (schema) {
     const schemaNameRef = schema['$ref'];
     const schemaName = schemaNameRef?.substring(
