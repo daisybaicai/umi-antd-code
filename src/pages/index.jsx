@@ -39,6 +39,7 @@ function SelectTable({ api = {} }) {
     setVisible(true);
     console.log("🚀 ~ file: index.jsx:41 ~ handleShow ~ options:", options)
     let params = getParams(record, options);
+    console.log("🚀 ~ file: index.jsx:42 ~ handleShow ~ params:", record)
     const response = getResponse(record, options);
 
     params = addParamsDefault(params);

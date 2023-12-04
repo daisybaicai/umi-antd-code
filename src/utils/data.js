@@ -14,7 +14,22 @@ export const getTransformArr = obj => {
           type: item?.schema?.type,
           ...item,
         }
-      }) || []
+      }) || [];
+      // 可能是包含requestBody的情况
+      let moreRequestBody = [];
+      const schema = methodsObject?.requestBody?.content?.['application/json']?.schema;
+      if(schema) {
+        const { paths = {}, definitions = {} } = getSwaggerInfos();
+        const result = getSchema(schema, definitions);
+        moreRequestBody = result.map(item => {
+          return {
+            ...item,
+            in: 'body'
+          }
+        })
+      }
+      const all = parametersArr.concat(moreRequestBody);
+
 
       data.push({
         url: path,
@@ -23,7 +38,7 @@ export const getTransformArr = obj => {
         tags: methodsObject.tags.join(''),
         id: methodsObject.operationId,
         methods: method,
-        params: parametersArr || [],
+        params: parametersArr?.concat(moreRequestBody) || [],
       });
       tags.add(methodsObject.tags.join(''));
     });
@@ -120,7 +135,16 @@ export const transformParams = (parameters = [], definitions) => {
 export const getParams = (record, options) => {
   // 获取数据源
   const { paths = {}, definitions = {} } = getSwaggerInfos();
-  const { parameters = [] } = getCurrentPathInfo(record, paths);
+  const result = getCurrentPathInfo(record, paths)
+  let { parameters = [] } = result;
+  
+  let moreRequestBody = [];
+  const schema = result?.requestBody?.content?.['application/json'];
+  // 特殊处理3.0问题
+  if(schema) {
+    parameters = [schema]
+  }
+  
   // debugger
   const transFormedParams = transformParams(parameters, definitions);
 
