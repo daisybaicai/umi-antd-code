@@ -8,6 +8,7 @@ export const getTransformArr = obj => {
     const methods = Object.keys(pathObj);
     methods.forEach(method => {
       const methodsObject = pathObj[method];
+      // console.log("🚀 ~ file: data.js:11 ~ Object.keys ~ methodsObject:", methodsObject)
       const parametersArr = methodsObject?.parameters?.map(item => {
         return {
           description: item?.name,
@@ -21,6 +22,7 @@ export const getTransformArr = obj => {
       if(schema) {
         const { paths = {}, definitions = {} } = getSwaggerInfos();
         const result = getSchema(schema, definitions);
+        // console.log("🚀 ~ file: data.js:25 ~ Object.keys ~ result:", result)
         moreRequestBody = result.map(item => {
           return {
             ...item,
@@ -127,6 +129,42 @@ export const transformParams = (parameters = [], definitions) => {
         });
         return properties;
       }
+      if(item?.schema?.properties) {
+        const curSchema = item.schema;
+        const properties = Object.keys(curSchema?.properties)?.map(key => {
+          const curProperties = curSchema.properties[key];
+          // 如果他还是refs的情况，将他进行处理，并且如果是type 是array的情况，将他进行处理
+          if(curProperties?.items?.originalRef && curProperties?.type === 'array') {
+            const res = getSchema(curProperties?.items, definitions,);
+            return {
+              name: key,
+              type: curProperties?.type,
+              description: curProperties?.description,
+              in: item.in,
+              children: res,
+            }
+          }
+          // 补充object 的情况
+          if(curProperties?.originalRef) {
+            const res = getSchema(curProperties, definitions);
+            return {
+              name: key,
+              type: curProperties?.type || 'object',
+              description: curProperties?.description,
+              in: item.in,
+              children: res,
+            }
+          }
+
+          return {
+            name: key,
+            in: item.in,
+            ...curProperties,
+          };
+        });
+        return properties;
+      }
+
       return item;
     });
   return Array.isArray(result) ? result.flat() : [];
@@ -139,18 +177,23 @@ export const getParams = (record, options) => {
   let { parameters = [] } = result;
   
   let moreRequestBody = [];
+  let parameters2 = [];
   const schema = result?.requestBody?.content?.['application/json'];
   // 特殊处理3.0问题
   if(schema) {
-    parameters = [schema]
+    parameters2 = [schema]
   }
   
   // debugger
-  const transFormedParams = transformParams(parameters, definitions);
+  const transFormedParams1 = transformParams(parameters, definitions);
+  const transFormedParams2 = transformParams(parameters2, definitions);
+  // console.log("🚀 ~ file: data.js:154 ~ getParams ~ transFormedParams2:", transFormedParams2)
+
+  const allResultParams = transFormedParams1.concat(transFormedParams2);
 
   // 重新排序下，type 是array或者object的在最下方,有children部分的放在最下面
-  transFormedParams?.sort((a,b) => a.children ? 1 : -1)
-  return transFormedParams;
+  allResultParams?.sort((a,b) => a.children ? 1 : -1)
+  return allResultParams;
 };
 
 export const getResponse = (record, options) => {
@@ -175,7 +218,16 @@ export const getSchema = (schema, definitions) => {
     const schemaName = schemaNameRef?.substring(
       schemaNameRef.lastIndexOf('/') + 1,
     );
-    const curSchema = schemaName ? definitions[schemaName] : {};
+    // const curSchema = schemaName ? definitions[schemaName] : {};
+    let curSchema = {};
+    if(schemaName) {
+      curSchema = definitions[schemaName]
+    }
+    // 特殊处理直接是schema的情况
+    if(schema?.properties) {
+      curSchema = schema;
+    }
+
 
     const properties =
       Object.keys(curSchema?.properties || {}).filter(key => {
