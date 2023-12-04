@@ -295,7 +295,7 @@ function SelectTable({ api = {} }) {
 
   return (
     <>
-      版本:0.1.5 <Button onClick={() => {
+      版本:0.1.5-hotfix <Button onClick={() => {
         window.location.reload();
       }}>强制刷新</Button>
       <Collapse defaultActiveKey={["1"]}>
