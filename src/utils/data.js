@@ -135,7 +135,7 @@ export const transformParams = (parameters = [], definitions) => {
           const curProperties = curSchema.properties[key];
           // 如果他还是refs的情况，将他进行处理，并且如果是type 是array的情况，将他进行处理
           if(curProperties?.items?.originalRef && curProperties?.type === 'array') {
-            const res = getSchema(curProperties?.items, definitions,);
+            const res = getSchema(curProperties?.items, definitions);
             return {
               name: key,
               type: curProperties?.type,
@@ -212,41 +212,54 @@ const flat = arr => {
   }, []);
 };
 
-export const getSchema = (schema, definitions) => {
+export const getSchema = (schema, definitions, processedRefs = new Set()) => {
   if (schema) {
     const schemaNameRef = schema['$ref'] || '';
-    const schemaName = schemaNameRef?.substring(
-      schemaNameRef.lastIndexOf('/') + 1,
-    );
-    // const curSchema = schemaName ? definitions[schemaName] : {};
+    const schemaName = schemaNameRef?.substring(schemaNameRef.lastIndexOf('/') + 1);
     let curSchema = {};
-    if(schemaName) {
-      curSchema = definitions[schemaName]
+
+    if (schemaName) {
+      // 检查是否已经处理过该引用，防止无限递归
+      if (processedRefs.has(schemaName)) {
+        return [];
+      }
+
+      curSchema = definitions[schemaName];
+
+      // 将当前引用标记为已处理
+      processedRefs.add(schemaName);
     }
+
     // 特殊处理直接是schema的情况
-    if(schema?.properties) {
+    if (schema?.properties) {
       curSchema = schema;
     }
 
+    const properties = Object.keys(curSchema?.properties || {}).filter(key => {
+      const curProperties = curSchema.properties[key];
+      // 废弃的直接删除
+      return !curProperties.deprecated && !curProperties.writeOnly;
+    }).map(key => {
+      const curProperties = curSchema?.properties?.[key];
 
-    const properties =
-      Object.keys(curSchema?.properties || {}).filter(key => {
-        const curProperties = curSchema.properties[key];
-        // 废弃的直接删除
-        return !curProperties.deprecated && !curProperties.writeOnly;
-      }).map(key => {
-        const curProperties = curSchema.properties[key];
-        if (curProperties?.items?.originalRef || curProperties?.items?.$ref) {
-          const res = getSchema(curProperties?.items, definitions);
-          return res;
-        }
-        return {
-          name: key,
-          ...curProperties,
-        };
-      }) || [];
+      if (curProperties?.items?.originalRef || curProperties?.items?.$ref) {
+        // 递归调用getSchema，并传递已处理的引用集合
+        const res = getSchema(curProperties?.items, definitions, processedRefs);
+        return res;
+      }
+
+      return {
+        name: key,
+        ...curProperties,
+      };
+    }) || [];
+
+    // 将已处理的引用集合还原为初始状态，以便在不同的分支中处理其他引用
+    processedRefs.delete(schemaName);
+
     return flat(properties);
   }
+
   return [];
 };
 
