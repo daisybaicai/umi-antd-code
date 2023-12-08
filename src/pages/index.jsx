@@ -37,10 +37,10 @@ function SelectTable({ api = {} }) {
     }
 
     setVisible(true);
-    console.log("🚀 ~ file: index.jsx:41 ~ handleShow ~ options:", options)
+    console.log("🚀 ~ file: index.jsx:41 ~ handleShow ~ options:", options);
     let params = getParams(record, options);
-    console.log("🚀 ~ file: index.jsx:42 ~ handleShow ~ params:", params)
-    console.log("🚀 ~ file: index.jsx:42 ~ handleShow ~ params:", record)
+    console.log("🚀 ~ file: index.jsx:42 ~ handleShow ~ params:", params);
+    console.log("🚀 ~ file: index.jsx:42 ~ handleShow ~ params:", record);
     const response = getResponse(record, options);
 
     params = addParamsDefault(params);
@@ -100,8 +100,10 @@ function SelectTable({ api = {} }) {
   ];
 
   const [visible, setVisible] = useState(false);
+  const [visible2, setVisible2] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [rKeys, setRKeys] = useState([]);
+  const [servicePath, setServicePath] = useState("/services/api.js");
 
   const [initialObjects, setInitialObjects] = useState({});
 
@@ -241,11 +243,13 @@ function SelectTable({ api = {} }) {
       cmd: "createApi",
       data: {
         options,
+        servicePath: servicePath,
         arr: rKeys,
       },
     };
     console.log("e", msgObj);
     window.parent.postMessage(msgObj, "*");
+    setVisible2(false);
   };
 
   const createBigScreenApi = () => {
@@ -296,9 +300,14 @@ function SelectTable({ api = {} }) {
 
   return (
     <>
-      版本:0.1.5-hotfix <Button onClick={() => {
-        window.location.reload();
-      }}>强制刷新</Button>
+      版本:0.1.8（确认vscode版本是否升级同步）
+      <Button
+        onClick={() => {
+          window.location.reload();
+        }}
+      >
+        强制刷新
+      </Button>
       <Collapse defaultActiveKey={["1"]}>
         <Collapse.Panel header="基础介绍以及options配置项" key="1">
           <p>
@@ -362,7 +371,7 @@ function SelectTable({ api = {} }) {
         onChange={() => handleChange("files2", "options-key")}
       ></input>
       <Button onClick={() => handleDownload()}>下载默认options</Button>
-      <Button onClick={() => createApi()}>批量生成api request</Button>
+      <Button onClick={() => setVisible2(true)}>批量生成api request</Button>
       {getLocalStorage("dsy-test") && (
         <Button onClick={() => createBigScreenApi()}>request 大屏用</Button>
       )}
@@ -501,6 +510,20 @@ function SelectTable({ api = {} }) {
             </Collapse>
           </Form.Item>
         </Form>
+      </Modal>
+      <Modal
+        open={visible2}
+        onOk={createApi}
+        onCancel={() => setVisible2(false)}
+        width={400}
+        title="批量路径"
+      >
+        路径:
+        <Input
+          value={servicePath}
+          onChange={(e) => setServicePath(e.target.value)}
+        />
+        注：指在当前项目src再继续的路径,请确保是/开头的路径,ex:/services/api.js
       </Modal>
     </>
   );
