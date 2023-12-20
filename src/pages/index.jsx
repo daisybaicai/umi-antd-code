@@ -16,10 +16,12 @@ import { handleApi, handleRequest } from "../utils/api";
 import { getParams, getResponse, getTransformArr } from "../utils/data";
 import { addParamsDefault } from "../utils/params";
 import { getLocalStorage, setLocalStorage } from "../utils/utils";
+import OptionsForm from "./components/OptionsForm";
 import ParamsListForm from "./components/ParamsListForm";
 
 function SelectTable({ api = {} }) {
   const [form] = Form.useForm();
+  const [form2] = Form.useForm();
 
   const [type, setType] = useState(null);
 
@@ -101,6 +103,8 @@ function SelectTable({ api = {} }) {
 
   const [visible, setVisible] = useState(false);
   const [visible2, setVisible2] = useState(false);
+  const [optionsVisible, setOptionsVisible] = useState(false);
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [rKeys, setRKeys] = useState([]);
   const [servicePath, setServicePath] = useState("/services/api.js");
@@ -318,6 +322,16 @@ function SelectTable({ api = {} }) {
           <div>
             <h4>options 配置项预览</h4>
             {JSON.stringify(options)}
+            <Button
+              onClick={() => {
+                setOptionsVisible(true);
+                form2.setFieldsValue({
+                  ...options,
+                });
+              }}
+            >
+              编辑
+            </Button>
           </div>
         </Collapse.Panel>
       </Collapse>
@@ -372,9 +386,6 @@ function SelectTable({ api = {} }) {
       ></input>
       <Button onClick={() => handleDownload()}>下载默认options</Button>
       <Button onClick={() => setVisible2(true)}>批量生成api request</Button>
-      {getLocalStorage("dsy-test") && (
-        <Button onClick={() => createBigScreenApi()}>request 大屏用</Button>
-      )}
       <Input
         value={searchValue}
         onChange={(v) => setSearchValue(v.target.value)}
@@ -524,6 +535,21 @@ function SelectTable({ api = {} }) {
           onChange={(e) => setServicePath(e.target.value)}
         />
         注：指在当前项目src再继续的路径,请确保是/开头的路径,ex:/services/api.js
+      </Modal>
+      <Modal
+        open={optionsVisible}
+        onOk={() => {
+          form2.validateFields().then((values) => {
+            console.log('values', values)
+            setLocalStorage("options-key", JSON.stringify(values));
+            setOptionsVisible(false)
+          })
+        }}
+        onCancel={() => setOptionsVisible(false)}
+        width={700}
+        title="设置options"
+      >
+        <OptionsForm form={form2} />
       </Modal>
     </>
   );
